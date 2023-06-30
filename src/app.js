@@ -45,7 +45,7 @@ app.post("/participants",async (req,res)=>{
         lastStatus: Date.now()}
     // Conferir se não possui outro usuario com este nome 
     try{
-        const alreadyHave= await db.collection("participants").findOne({name: name})
+        const alreadyHave= await db.collection("participants").findOne({name: valited.value.name})
 
         if(alreadyHave){
             console.log("já possui este usuário")
