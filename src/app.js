@@ -9,9 +9,9 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// Server mongo reading and edinpm sting creation 
-const mongoClient = new MongoClient(process.env.URLsecret);
-let db = 0;
+// Server mongo reading and editing  creation 
+const mongoClient = new MongoClient("mongodb://127.0.0.1:27017/test");
+let db = mongoClient.db();
 mongoClient.connect()
 .then(() => {db = mongoClient.db();console.log("server is working")})
 .catch((err) => console.log(err.message,"não foi "));
