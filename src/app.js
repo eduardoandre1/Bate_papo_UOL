@@ -1,9 +1,10 @@
 import  express  from "express";
-import cors from "cors"
-import { MongoClient } from "mongodb"
+import cors from "cors";
+import { Db, MongoClient } from "mongodb";
 import dayjs from "dayjs"; 
 import Joi from "joi";
-
+import dotenv from "dotenv";
+dotenv.config()
 
 //url encrypty
 //
@@ -15,8 +16,8 @@ app.use(express.json())
 //
 
 // Server mongo reading and editing by api
-const mongoClient = new MongoClient("mongodb://127.0.0.1:27017/test");
-let db = mongoClient.db();
+const mongoClient = new MongoClient(process.env.DATABASE_URL);
+let db ;
 mongoClient.connect()
 .then(() => {db = mongoClient.db();console.log("server is working")})
 .catch((err) => console.log(err.message,"não foi "));
@@ -27,7 +28,7 @@ app.post("/participants",(req,res)=>{
         name: Joi.string().required()
     })
     const valited = validname.validate(name,{ abortEarly: false })
-    console.log(valited)
+    db.insertOne(valited)
     res.send(valited)
 })
 app.get("/participants",(req,res)=>{})
