@@ -41,12 +41,12 @@ app.post("/participants",async (req,res)=>{
     }
     // criar dado do participante 
     const participant = {
-        name: name ,
+        name: valited.value.name ,
         lastStatus: Date.now()}
     // Conferir se não possui outro usuario com este nome 
     try{
         const alreadyHave= await db.collection("participants").findOne({name: name})
-        console.log(alreadyHave)
+
         if(alreadyHave){
             console.log("já possui este usuário")
             return res.sendStatus(409) 
