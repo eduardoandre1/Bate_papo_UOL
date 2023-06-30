@@ -29,6 +29,8 @@ app.post("/participants",async (req,res)=>{
     // entrada
     const name = req.body
     
+    
+    
     // requisitos de entrada
     const validname = Joi.object({
         name: Joi.string().required()
@@ -38,6 +40,15 @@ app.post("/participants",async (req,res)=>{
     if(!valited.error === false || !name){
         console.log(valited.error)
         return res.status(422).send()
+    }
+    //mensaguem de entrada 
+    const moment = new Date()
+    const messager ={ 
+		from: valited.value.name ,
+		to: 'Todos',
+		text: 'entra na sala...',
+		type: 'status',
+		time: `${moment.getHours()}:${moment.getMinutes()}:${moment.getSeconds()}`
     }
     // criar dado do participante 
     const participant = {
@@ -52,24 +63,14 @@ app.post("/participants",async (req,res)=>{
             return res.sendStatus(409) 
         }
         db.collection("participants").insertOne(participant)
+        db.collection("messages").insertOne(messager)
+
         return res.sendStatus(201)
     }catch(err){
         return res.status(500).send(err.message);
     }
     
-    //db.collections("participants").insertOne({})
-    res.sendStatus(203)
-    /*
-    try{
-        //db.collection("participants").deleteMany()
-        res.send(db.collection("participants").find().toArray().then(users => {
-            console.log(users)}))
-        return
-    }catch(err){
-        console.log(err)
-        res.status(523).send(err)
-    }
-    */
+
 })
 app.get("/participants",async (req,res)=>{
     try{ 
