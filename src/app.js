@@ -71,7 +71,16 @@ app.post("/participants",async (req,res)=>{
     }
     */
 })
-app.get("/participants",(req,res)=>{})
+app.get("/participants",async (req,res)=>{
+    try{ 
+        const list_participants = await db.collection("participants").find().toArray()
+        console.log(list_participants)
+        res.send(list_participants)
+    }catch(err){
+        res.status(500).send(err)
+    }
+
+})
 //
 
 //page messages
