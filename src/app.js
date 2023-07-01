@@ -21,16 +21,13 @@ const mongoClient = new MongoClient(process.env.DATABASE_URL);
 let db ;
 mongoClient.connect()
 .then(() => {db = mongoClient.db();console.log("server is working")})
-.catch((err) => console.log(err.message,"não foi "));
+.catch((err) => console.log(err.message,"server offline"));
 //
 
 // page participantes 
 app.post("/participants",async (req,res)=>{
     // entrada
     const name = req.body
-    
-    
-    
     // requisitos de entrada
     const validname = Joi.object({
         name: Joi.string().required()
@@ -48,7 +45,7 @@ app.post("/participants",async (req,res)=>{
 		to: 'Todos',
 		text: 'entra na sala...',
 		type: 'status',
-		time: `${moment.getHours()}:${moment.getMinutes()}:${moment.getSeconds()}`
+		time: `${moment.getHours('hh')}:${moment.getMinutes('mm')}:${moment.getSeconds('ss')}`
     }
     console.log(messager)
     // criar dado do participante 
@@ -87,7 +84,32 @@ app.get("/participants",async (req,res)=>{
 //
 
 //page messages
-app.post("/messages",(req,res)=>{})
+app.post("/messages",async (req,res)=>{
+    const {from } = req.header.User 
+    const {to , text , type} = req.body
+    const now = new Date()
+    const message ={from: from, to: to , text: text , type: type ,time:`${moment.getHours('hh')}:${moment.getMinutes('mm')}:${moment.getSeconds('ss')}`}
+    const schema = Joi.object({
+        from: Joi.string().required(),
+        to: Joi.string().required(),
+        text : Joi.string().required(),
+        type :Joi.string().required(),
+        time: Joi.required()
+    })
+    const {error} = schema.validate(message);
+    if(error !== undefined ){
+        return res.sendStatus(422)
+    }
+    try{
+        const alreadyHave= await db.collection("participants").findOne({from})
+        if(!alreadyHave){
+            return res.sendStatus(422)
+        }
+    }catch(err){ return res.status(500).send(err.message)
+    }
+    res.sendStatus(201)
+
+})
 app.get("/messages",(req,res)=>{
 
 })
