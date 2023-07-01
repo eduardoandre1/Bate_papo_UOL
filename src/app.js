@@ -50,6 +50,7 @@ app.post("/participants",async (req,res)=>{
 		type: 'status',
 		time: `${moment.getHours()}:${moment.getMinutes()}:${moment.getSeconds()}`
     }
+    console.log(messager)
     // criar dado do participante 
     const participant = {
         name: valited.value.name ,
@@ -57,13 +58,14 @@ app.post("/participants",async (req,res)=>{
     // Conferir se não possui outro usuario com este nome 
     try{
         const alreadyHave= await db.collection("participants").findOne({name: valited.value.name})
-
         if(alreadyHave){
             console.log("já possui este usuário")
             return res.sendStatus(409) 
         }
-        db.collection("participants").insertOne(participant)
-        db.collection("messages").insertOne(messager)
+        await db.collection("messages").insertOne(messager)
+        await db.collection("participants").insertOne(participant)
+        const list_participants = await db.collection("participants").find().toArray()
+        console.log(list_participants)
 
         return res.sendStatus(201)
     }catch(err){
@@ -86,7 +88,9 @@ app.get("/participants",async (req,res)=>{
 
 //page messages
 app.post("/messages",(req,res)=>{})
-app.get("/messages",(req,res)=>{})
+app.get("/messages",(req,res)=>{
+
+})
 //
 
 //page status
