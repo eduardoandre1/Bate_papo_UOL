@@ -87,7 +87,7 @@ app.post("/messages",async (req,res)=>{
     const from = req.headers.user 
     const {to , text , type} = req.body
     const now = new Date()
-    const message ={from: from, to: to , text: text , type: type ,time:`${now.getHours('hh')}:${now.getMinutes('mm')}:${now.getSeconds('ss')}`}
+    const message ={from: from, to: to , text: text , type: type ,time:`${now.getHours(hh)}:${now.getMinutes(mm)}:${now.getSeconds(ss)}`}
     const schema = Joi.object({
         from: Joi.string().required(),
         to: Joi.string().required(),
@@ -101,12 +101,12 @@ app.post("/messages",async (req,res)=>{
         return res.sendStatus(422)
     }
     if(message.type !== "message" && message.type !== "private_message"){
-        return res.send()
+        return res.sendStatus(422)
     } 
     try{
         const alreadyHave= await db.collection("participants").findOne({name: from})
         console.log(from)
-        console.log(!alreadyHave)
+        console.log(alreadyHave)
         if(!alreadyHave){
             console.log('no user finded')
             return res.sendStatus(422)
@@ -123,7 +123,10 @@ app.get("/messages",(req,res)=>{
 //
 
 //page status
-app.post("/status",(eq,res)=>{})
+app.post("/status",(eq,res)=>{
+    const user = req.headers.user
+
+})
 //
 
 // Api reading 
