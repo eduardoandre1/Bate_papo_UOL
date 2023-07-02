@@ -199,5 +199,6 @@ async function expulseiative(){
     } 
 }
 setInterval(expulseiative,15000)
+
 // Api reading 
 app.listen(5000,()=>console.log("api is working"))
