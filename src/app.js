@@ -63,7 +63,6 @@ app.post("/participants",async (req,res)=>{
         await db.collection("participants").insertOne(participant)
         const list_participants = await db.collection("participants").find().toArray()
         console.log(list_participants)
-
         return res.sendStatus(201)
     }catch(err){
         return res.status(500).send(err.message);
@@ -85,10 +84,10 @@ app.get("/participants",async (req,res)=>{
 
 //page messages
 app.post("/messages",async (req,res)=>{
-    const {from } = req.header.User 
+    const from = req.headers.user 
     const {to , text , type} = req.body
     const now = new Date()
-    const message ={from: from, to: to , text: text , type: type ,time:`${moment.getHours('hh')}:${moment.getMinutes('mm')}:${moment.getSeconds('ss')}`}
+    const message ={from: from, to: to , text: text , type: type ,time:`${now.getHours('hh')}:${now.getMinutes('mm')}:${now.getSeconds('ss')}`}
     const schema = Joi.object({
         from: Joi.string().required(),
         to: Joi.string().required(),
@@ -97,18 +96,26 @@ app.post("/messages",async (req,res)=>{
         time: Joi.required()
     })
     const {error} = schema.validate(message);
-    if(error !== undefined ){
+    if(error !== undefined){
+        console.log(error)
         return res.sendStatus(422)
     }
+    if(message.type !== "message" && message.type !== "private_message"){
+        return res.send()
+    } 
     try{
-        const alreadyHave= await db.collection("participants").findOne({from})
+        const alreadyHave= await db.collection("participants").findOne({name: from})
+        console.log(from)
+        console.log(!alreadyHave)
         if(!alreadyHave){
+            console.log('no user finded')
             return res.sendStatus(422)
         }
-    }catch(err){ return res.status(500).send(err.message)
+        else{res.sendStatus(201)}
+    }catch(err){ 
+        return res.status(500).send(err.message)
     }
-    res.sendStatus(201)
-
+    
 })
 app.get("/messages",(req,res)=>{
 
