@@ -119,10 +119,12 @@ app.post("/messages",async (req,res)=>{
     
 })
 app.get("/messages",async(req,res)=>{
-    const inputs ={user : req.headers.user, limit : req.query.limit}
+    const limites =!req.query.limit?'50':req.query.limit
+    console.log(limites)
+    const inputs ={user : req.headers.user, limit : limites}
     const schema = Joi.object({
         user: Joi.string().required(),
-        limit : Joi.number().min(1)
+        limit : Joi.number().min(1).required()
     })
     const {error} = schema.validate(inputs)
     if(error !== undefined){
@@ -130,11 +132,8 @@ app.get("/messages",async(req,res)=>{
         return res.sendStatus(422)
     }
     try{
-        const list_participants = await db.collection("messages").find({$or:[{to:inputs.user},{to:"Todos"},{from:inputs.user}]}).toArray()
+        const list_participants = await db.collection("messages").find({$or:[{to:inputs.user},{from:inputs.user}]}).toArray()
         if(list_participants.length < inputs.limit){
-            return res.status(200).send(list_participants)
-        }
-        if(!inputs.limit){
             return res.status(200).send(list_participants)
         }
         return res.status(200).send(list_participants.slice(-inputs.limit))
@@ -169,6 +168,9 @@ app.post("/status",async (req,res)=>{
 
 })
 //
+function expulseiative(){
 
+}
+//setInterval(expulseiative,15000)
 // Api reading 
 app.listen(5000,()=>console.log("api is working"))
