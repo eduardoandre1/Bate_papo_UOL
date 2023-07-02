@@ -122,7 +122,7 @@ app.get("/messages",async(req,res)=>{
     const inputs ={user : req.headers.user, limit : req.query.limite}
     const schema = Joi.object({
         user: Joi.string().required(),
-        limit : Joi.number().required().min(1)
+        limit : Joi.number().min(1)
     })
     const {error} = schema.validate(inputs)
     console.log(error)
@@ -135,13 +135,13 @@ app.get("/messages",async(req,res)=>{
         if(list_participants.length < inputs.limit){
             return res.status(200).send(list_participants)
         }
+        if(!inputs.limit){
+            return res.status(200).send(list_participants)
+        }
         return res.status(200).send(list_participants.slice(-inputs.limit))
     }catch(err){
         return res.sendStatus(500)
     }
-
-    return res.status(200).send(list_participants)
-
 })
 //
 
