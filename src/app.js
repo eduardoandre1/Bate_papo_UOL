@@ -39,13 +39,13 @@ app.post("/participants",async (req,res)=>{
         return res.status(422).send()
     }
     //mensaguem de entrada 
-    const moment = new Date()
+    const moment = dayjs().format('HH:mm:ss')
     const messager ={ 
 		from: valited.value.name ,
 		to: 'Todos',
 		text: 'entra na sala...',
 		type: 'status',
-		time: `${moment.getHours('hh')}:${moment.getMinutes('mm')}:${moment.getSeconds('ss')}`
+		time: `${moment}`
     }
     console.log(messager)
     // criar dado do participante 
@@ -86,8 +86,9 @@ app.get("/participants",async (req,res)=>{
 app.post("/messages",async (req,res)=>{
     const from = req.headers.user 
     const {to , text , type} = req.body
-    const now = new Date()
-    const message ={from: from, to: to , text: text , type: type ,time:`${now.getHours('hh')}:${now.getMinutes('mm')}:${now.getSeconds('ss')}`}
+    const now = dayjs().format('HH:mm:ss')
+    console.log(now)
+    const message ={from: from, to: to , text: text , type: type ,time:`${now}`}
     const schema = Joi.object({
         from: Joi.string().required(),
         to: Joi.string().required(),
@@ -111,13 +112,19 @@ app.post("/messages",async (req,res)=>{
             console.log('no user finded')
             return res.sendStatus(422)
         }
-        else{res.sendStatus(201)}
+        await db.collection('messages').insertOne(message)
+        const list_participants = await db.collection("messages").find().toArray()
+        console.log(list_participants)
+        return res.sendStatus(201)
     }catch(err){ 
         return res.status(500).send(err.message)
     }
     
 })
-app.get("/messages",(req,res)=>{
+app.get("/messages",async(req,res)=>{
+    const list_participants = await db.collection("messages").find().toArray()
+    console.log(list_participants)
+    return res.status(200).send(list_participants)
 
 })
 //
