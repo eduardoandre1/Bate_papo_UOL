@@ -119,7 +119,7 @@ app.post("/messages",async (req,res)=>{
     
 })
 app.get("/messages",async(req,res)=>{
-    const limites =!req.query.limit?'50':req.query.limit
+    const limites =!req.query.limit?null:req.query.limit
     console.log(limites)
     const inputs ={user : req.headers.user, limit : limites}
     const schema = Joi.object({
@@ -127,16 +127,20 @@ app.get("/messages",async(req,res)=>{
         limit : Joi.number().min(1).required()
     })
     const {error} = schema.validate(inputs)
-    if(error !== undefined){
+    if(error !== undefined && limites !== null){
         console.log(error)
         return res.sendStatus(422)
     }
     try{
-        const list_participants = await db.collection("messages").find({$or:[{to:inputs.user},{from:inputs.user}]}).toArray()
-        if(list_participants.length < inputs.limit){
-            return res.status(200).send(list_participants)
+        if(!req.query.limit){
+            const publics = await db.collection("messages").find({to:"Todos"}).toArray()
+            return res.status(200).send(publics)
         }
-        return res.status(200).send(list_participants.slice(-inputs.limit))
+        const list_mensagens_private = await db.collection("messages").find({$or:[{to:inputs.user,type: "private_message"},{from:inputs.user,type: "private_message"},]}).toArray()
+        if(list_mensagens_private.length < inputs.limit){
+            return res.status(200).send(list_mensagens_private)
+        }
+        return res.status(200).send(list_mensagens_private.slice(-inputs.limit))
     }catch(err){
         return res.sendStatus(500)
     }
@@ -169,8 +173,14 @@ app.post("/status",async (req,res)=>{
 
 })
 //
-function expulseiative(){
+async function expulseiative(){
+    
+    try{
+        const time = Date.now() -10000 
+    }
+    catch(err){
 
+    } 
 }
 //setInterval(expulseiative,15000)
 // Api reading 
