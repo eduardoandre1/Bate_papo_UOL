@@ -87,7 +87,7 @@ app.post("/messages",async (req,res)=>{
     const from = req.headers.user 
     const {to , text , type} = req.body
     const now = new Date()
-    const message ={from: from, to: to , text: text , type: type ,time:`${now.getHours(hh)}:${now.getMinutes(mm)}:${now.getSeconds(ss)}`}
+    const message ={from: from, to: to , text: text , type: type ,time:`${now.getHours('hh')}:${now.getMinutes('mm')}:${now.getSeconds('ss')}`}
     const schema = Joi.object({
         from: Joi.string().required(),
         to: Joi.string().required(),
@@ -123,8 +123,26 @@ app.get("/messages",(req,res)=>{
 //
 
 //page status
-app.post("/status",(eq,res)=>{
+app.post("/status",async (req,res)=>{
     const user = req.headers.user
+    if(!user){
+        return res.sendStatus(404)
+    }
+    const same_men_new_time = {
+        name: user ,
+        lastStatus: Date.now()
+    }
+    try{
+        const alreadyHave = db.collection("participants").findOne({name:user})
+        if(!alreadyHave){
+            return res.sendStatus(404)
+        }
+        await db.collection("participants")
+        .updateOne({name:user},{$set: same_men_new_time})
+        return res.sendStatus(200)
+    }catch(err){
+        return res.sendStatus(500)
+    }
 
 })
 //
