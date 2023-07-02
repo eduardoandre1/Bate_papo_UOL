@@ -119,7 +119,7 @@ app.post("/messages",async (req,res)=>{
     
 })
 app.get("/messages",async(req,res)=>{
-    const inputs ={user : req.headers.user, limit : req.query.limite}
+    const inputs ={user : req.headers.user, limit : req.query.limit}
     const schema = Joi.object({
         user: Joi.string().required(),
         limit : Joi.number().min(1)
@@ -130,7 +130,7 @@ app.get("/messages",async(req,res)=>{
         return res.sendStatus(422)
     }
     try{
-        const list_participants = await db.collection("messages").find({$or:[{to:inputs.user},{to:"Todos"}]}).toArray()
+        const list_participants = await db.collection("messages").find({$or:[{to:inputs.user},{to:"Todos"},{from:inputs.user}]}).toArray()
         if(list_participants.length < inputs.limit){
             return res.status(200).send(list_participants)
         }
