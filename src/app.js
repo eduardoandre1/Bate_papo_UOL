@@ -176,12 +176,28 @@ app.post("/status",async (req,res)=>{
 async function expulseiative(){
     
     try{
-        const time = Date.now() -10000 
+        const ten_seconds_later = Date.now() -10000 
+        const to_offline = await db.collection("participants").find({lastStatus:{$lte : ten_seconds_later}}).toArray()
+        console.log(to_offline)
+        to_offline.forEach( async (user) => {
+            const moment = dayjs().format('HH:mm:ss')
+            const message =
+            {
+                from: user.name,
+                to: 'Todos',
+                text: 'sai da sala...',
+                type: 'status',
+                time: `${moment}`
+            }
+            await db.collection('messages').insertOne(message)
+            console.log(message)
+            await db.collection("participants").deleteOne({_id: user._id})
+        });
     }
     catch(err){
 
     } 
 }
-//setInterval(expulseiative,15000)
+setInterval(expulseiative,15000)
 // Api reading 
 app.listen(5000,()=>console.log("api is working"))
