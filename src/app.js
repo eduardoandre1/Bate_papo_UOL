@@ -136,7 +136,7 @@ app.get("/messages",async(req,res)=>{
             const publics = await db.collection("messages").find({to:"Todos"}).toArray()
             return res.status(200).send(publics)
         }
-        const list_mensagens_private = await db.collection("messages").find({$or:[{to:inputs.user,type: "private_message"},{from:inputs.user,type: "private_message"},]}).toArray()
+        const list_mensagens_private = await db.collection("messages").find({$or:[{to:inputs.user},{from:inputs.user},]}).toArray()
         if(list_mensagens_private.length < inputs.limit){
             return res.status(200).send(list_mensagens_private)
         }
