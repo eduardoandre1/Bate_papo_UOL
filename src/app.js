@@ -76,7 +76,7 @@ app.get("/participants",async (req,res)=>{
         console.log(list_participants)
         res.send(list_participants)
     }catch(err){
-        res.status(500).send(err)
+        res.status(500).send(err.message)
     }
 
 })
@@ -87,7 +87,6 @@ app.post("/messages",async (req,res)=>{
     const from = req.headers.user 
     const {to , text , type} = req.body
     const now = dayjs().format('HH:mm:ss')
-    console.log(now)
     const message ={from: from, to: to , text: text , type: type ,time:`${now}`}
     const schema = Joi.object({
         from: Joi.string().required(),
@@ -113,8 +112,6 @@ app.post("/messages",async (req,res)=>{
             return res.sendStatus(422)
         }
         await db.collection('messages').insertOne(message)
-        const list_participants = await db.collection("messages").find().toArray()
-        console.log(list_participants)
         return res.sendStatus(201)
     }catch(err){ 
         return res.status(500).send(err.message)
@@ -122,8 +119,27 @@ app.post("/messages",async (req,res)=>{
     
 })
 app.get("/messages",async(req,res)=>{
-    const list_participants = await db.collection("messages").find().toArray()
-    console.log(list_participants)
+    const inputs ={user : req.headers.user, limit : req.query.limite}
+    const schema = Joi.object({
+        user: Joi.string().required(),
+        limit : Joi.number().required().min(1)
+    })
+    const {error} = schema.validate(inputs)
+    console.log(error)
+    if(error !== undefined){
+        console.log(error)
+        return res.sendStatus(422)
+    }
+    try{
+        const list_participants = await db.collection("messages").find({$or:[{to:inputs.user},{to:"Todos"}]}).toArray()
+        if(list_participants.length < inputs.limit){
+            return res.status(200).send(list_participants)
+        }
+        return res.status(200).send(list_participants.slice(-inputs.limit))
+    }catch(err){
+        return res.sendStatus(500)
+    }
+
     return res.status(200).send(list_participants)
 
 })
@@ -143,10 +159,11 @@ app.post("/status",async (req,res)=>{
         const alreadyHave = db.collection("participants").findOne({name:user})
         if(!alreadyHave){
             return res.sendStatus(404)
-        }
+        }else{
         await db.collection("participants")
         .updateOne({name:user},{$set: same_men_new_time})
         return res.sendStatus(200)
+        }
     }catch(err){
         return res.sendStatus(500)
     }
