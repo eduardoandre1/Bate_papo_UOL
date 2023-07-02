@@ -118,7 +118,7 @@ app.post("/messages",async (req,res)=>{
     }
     
 })
-app.get("/messages?limit",async(req,res)=>{
+app.get("/messages?:limit",async(req,res)=>{
     const limites =!req.query.limit?null:req.query.limit
     console.log(limites)
     const inputs ={user : req.headers.user, limit : limites}
