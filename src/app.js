@@ -118,7 +118,7 @@ app.post("/messages",async (req,res)=>{
     }
     
 })
-app.get("/messages",async(req,res)=>{
+app.get("/messages?limit",async(req,res)=>{
     const limites =!req.query.limit?null:req.query.limit
     console.log(limites)
     const inputs ={user : req.headers.user, limit : limites}
@@ -133,10 +133,10 @@ app.get("/messages",async(req,res)=>{
     }
     try{
         if(!req.query.limit){
-            const publics = await db.collection("messages").find({to:"Todos"}).toArray()
+            const publics = await db.collection("messages").find({to:"Todos",type:{ $ne: '"private_message"' }}).toArray()
             return res.status(200).send(publics)
         }
-        const list_mensagens_private = await db.collection("messages").find({$or:[{to:inputs.user},{from:inputs.user},]}).toArray()
+        const list_mensagens_private = await db.collection("messages").find({$or:[{to:inputs.user},{from:inputs.user}]}).toArray()
         if(list_mensagens_private.length < inputs.limit){
             return res.status(200).send(list_mensagens_private)
         }
@@ -198,7 +198,7 @@ async function expulseiative(){
 
     } 
 }
-setInterval(expulseiative,15000)
+//setInterval(expulseiative,15000)
 
 // Api reading 
 app.listen(5000,()=>console.log("api is working"))
