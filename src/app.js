@@ -154,7 +154,8 @@ app.post("/status",async (req,res)=>{
         lastStatus: Date.now()
     }
     try{
-        const alreadyHave = db.collection("participants").findOne({name:user})
+        const alreadyHave = await db.collection("participants").findOne({name:user})
+        console.log(alreadyHave)
         if(!alreadyHave){
             return res.sendStatus(404)
         }else{
