@@ -125,7 +125,6 @@ app.get("/messages",async(req,res)=>{
         limit : Joi.number().min(1)
     })
     const {error} = schema.validate(inputs)
-    console.log(error)
     if(error !== undefined){
         console.log(error)
         return res.sendStatus(422)
