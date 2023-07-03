@@ -124,7 +124,7 @@ app.get("/messages", async (req,res)=>{
     const inputs ={user : req.headers.user, limit : limites}
     const schema = Joi.object({
         user: Joi.string().required(),
-        limit : Joi.number().min(1).required()
+        limit : Joi.number().min(1).optional()
     })
     const {error} = schema.validate(inputs)
     if(error !== undefined && limites !== null){
