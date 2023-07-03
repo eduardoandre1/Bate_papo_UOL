@@ -124,7 +124,7 @@ app.get("/messages", async (req,res)=>{
     const inputs ={user : req.headers.user, limit : limites}
     const schema = Joi.object({
         user: Joi.string().required(),
-        limit : Joi.number().min(1).optional()
+        limit : Joi.number().min(1)
     })
     const {error} = schema.validate(inputs)
     if(error !== undefined && limites !== null){
@@ -138,13 +138,14 @@ app.get("/messages", async (req,res)=>{
                 {to: { $in :["Todos",inputs.user]}}
             ]
         }).toArray()
-        if(!limites){
+        console.log(list_message)
+        if(limites){
+            return res.status(200).send(list_message.slice(-limites))
+        }
+        if(list_message.length < inputs.limit){
             return res.status(200).send(list_message)
         }
-        if(list_mensagens_private.length < inputs.limit){
-            return res.status(200).send(list_message)
-        }
-        return res.status(200).send(list_mensagens_private.slice(-inputs.limit))
+        return res.status(200).send(list_mensagens_private.slice(-limites))
     }catch(err){
         return res.sendStatus(500)
     }
@@ -194,7 +195,6 @@ async function expulseiative(){
                 time: `${moment}`
             }
             await db.collection('messages').insertOne(message)
-            console.log(message)
             await db.collection("participants").deleteOne({_id: user._id})
         });
     }
